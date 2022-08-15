@@ -44,8 +44,23 @@ const ConvertEthToWeth = async (amount, signer) => {
     }
 }
 
-const convertWethToEth = async () => {
-    console.log("convert weth to eth")
+const convertWethToEth = async (amount, signer) => {
+    console.log(`initiating conversion of ${amount}WETH to ETH`)
+
+    try {
+        const chainId = network.config.chainId
+        const wethAddress = networkConfig[chainId][asset]
+
+        const wethContract = await ethers.getContractAt("IWeth", wethAddress, signer)
+
+        const txResponse = await wethContract.withdraw(ethers.utils.parseEther(amount))
+        const txReceipt = await txResponse.wait(1)
+
+        console.log(`Transaction receipt for ETH withdrawal ${txReceipt.transactionHash} `)
+    } catch (e) {
+        console.log("Error detected in WETH-ETH conversion")
+        console.error(e)
+    }
 }
 
 module.exports = { ConvertEthToWeth, convertWethToEth }

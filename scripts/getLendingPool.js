@@ -13,32 +13,37 @@ const {
  * @returns lending pool contract that is connected to signer
  */
 const GetLendingPool = async (signer) => {
-    console.log("Entered GetLendingPool() method to fetch lending pool contract on Aave")
+    console.log("Entered GetLendingPool method to fetch lending pool contract on Aave")
 
-    // get the lendingPoolAddressProvider contract
-    console.log("Getting Lending Pool Addresses Provider")
+    try {
+        // get the lendingPoolAddressProvider contract
+        console.log("Getting Lending Pool Addresses Provider")
 
-    // LendingPoolAddressProvider gives us the latest address on which lendingPool contract is deployed
-    const lendingPoolAddressProvider = await ethers.getContractAt(
-        "ILendingPoolAddressesProvider",
-        aaveILendingPoolAddressesProvider,
-        signer
-    )
+        // LendingPoolAddressProvider gives us the latest address on which lendingPool contract is deployed
+        const lendingPoolAddressProvider = await ethers.getContractAt(
+            "ILendingPoolAddressesProvider",
+            aaveILendingPoolAddressesProvider,
+            signer
+        )
 
-    // call getLendingPool() to get the lendingPoolContract
-    // contract address can change from time-to-time - getLendingPool() refers to the correct address
-    console.log("Getting Lending Pool from LendingPoolAddressProvider")
-    const lendingPoolAddress = await lendingPoolAddressProvider.getLendingPool()
+        // call getLendingPool() to get the lendingPoolContract
+        // contract address can change from time-to-time - getLendingPool() refers to the correct address
+        console.log("Getting Lending Pool from LendingPoolAddressProvider")
+        const lendingPoolAddress = await lendingPoolAddressProvider.getLendingPool()
 
-    const lendingPoolContract = await ethers.getContractAt(
-        "ILendingPool",
-        lendingPoolAddress,
-        signer
-    )
+        const lendingPoolContract = await ethers.getContractAt(
+            "ILendingPool",
+            lendingPoolAddress,
+            signer
+        )
 
-    console.log("Lending Pool contract successfully initiated...")
+        console.log("Lending Pool contract successfully initiated...")
 
-    return lendingPoolContract
+        return lendingPoolContract
+    } catch (e) {
+        console.log("Error detected in GetLendingPool contract")
+        console.error("e")
+    }
 }
 
 module.exports = { GetLendingPool }

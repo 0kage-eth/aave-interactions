@@ -11,16 +11,27 @@ const { network, ethers } = require("hardhat")
  */
 const BorrowAsset = async (asset, lendingPoolContract, amountInEth, signer) => {
     console.log(`Initiating borrow request for ${asset} for ${amountInEth} (ethers)`)
-    const chainId = network.config.chainId
-    const assetTokenAddress = networkConfig[chainId][asset]
+    try {
+        const chainId = network.config.chainId
+        const assetTokenAddress = networkConfig[chainId][asset]
 
-    const amountInWei = ethers.utils.formatUnits(amountInEth)
-    const borrowTx = await lendingPoolContract.borrow(assetTokenAddress, amountInWei, 1, 0, signer)
+        const amountInWei = ethers.utils.parseEther(amountInEth)
+        const borrowTx = await lendingPoolContract.borrow(
+            assetTokenAddress,
+            amountInWei,
+            1,
+            0,
+            signer
+        )
 
-    const borrowTxReceipt = await borrowTx.wait(1)
+        const borrowTxReceipt = await borrowTx.wait(1)
 
-    console.log(`Borrow transaction receipt is ${borrowTxReceipt.transactionHash}`)
-    console.log(`Borrowing of ${asset} for ${amountInEth} (ethers) completed successfully`)
+        console.log(`Borrow transaction receipt is ${borrowTxReceipt.transactionHash}`)
+        console.log(`Borrowing of ${asset} for ${amountInEth} (ethers) completed successfully`)
+    } catch (e) {
+        console.log("Error detected in Borrow Asset")
+        console.error("e")
+    }
 }
 
 module.exports = { BorrowAsset }

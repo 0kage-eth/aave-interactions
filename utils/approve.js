@@ -2,10 +2,10 @@ const { ethers } = require("hardhat")
 
 /**
  *
- * @param erc20Address erc20 token address
- * @param amountToSpend amount in ether
- * @param spenderAddress contract which is seeking permission to spend
- * @param signer signer who has to approve
+ * @param {address} erc20Address erc20 token address
+ * @param {string} amountToSpend amount in ether
+ * @param {address} spenderAddress contract which is seeking permission to spend
+ * @param {address} signer signer who has to approve
  */
 const approveErc20 = async (erc20Address, amountToSpend, spenderAddress, signer) => {
     try {

@@ -20,48 +20,55 @@ const { approveErc20 } = require("../utils/approve")
 const DepositAsset = async (asset, amount, lendingPoolContract, signer) => {
     console.log(`Initiating deposit for ${asset} asset for ${amount} ether`)
 
-    const chainId = network.config.chainId
-    const assetAddress = networkConfig[chainId][asset]
-    const etherAmount = amount.toString()
+    try {
+        const chainId = network.config.chainId
+        const assetAddress = networkConfig[chainId][asset]
+        const etherAmount = amount.toString()
 
-    console.log(`Getting asset contract for ${contractInterfaces[asset]} interface`)
-    const assetContract = await ethers.getContractAt(
-        contractInterfaces[asset],
-        assetAddress,
-        signer
-    )
+        console.log(`Getting asset contract for ${contractInterfaces[asset]} interface`)
+        const assetContract = await ethers.getContractAt(
+            contractInterfaces[asset],
+            assetAddress,
+            signer
+        )
 
-    console.log("asset contract initiated...")
-    const assetBalanceBeforeDeposit = await assetContract.balanceOf(signer)
-    console.log(
-        `Asset balance in signer account pre-deposit is ${ethers.utils.formatEther(
-            assetBalanceBeforeDeposit
-        )}`
-    )
+        console.log("asset contract initiated...")
+        const assetBalanceBeforeDeposit = await assetContract.balanceOf(signer)
+        console.log(
+            `Asset balance in signer account pre-deposit is ${ethers.utils.formatEther(
+                assetBalanceBeforeDeposit
+            )}`
+        )
 
-    console.log("Seeking approval for lending pool contract to spend asset")
-    await approveErc20(assetAddress, etherAmount, lendingPoolContract.address, signer)
+        console.log("Seeking approval for lending pool contract to spend asset")
+        await approveErc20(assetAddress, etherAmount, lendingPoolContract.address, signer)
 
-    console.log(`sending asset address ${assetAddress}, signer ${signer}, amount ${etherAmount}`)
-    console.log("getting deposit transaction response...")
-    const depositTxResponse = await lendingPoolContract.deposit(
-        assetAddress,
-        ethers.utils.parseEther(etherAmount),
-        signer,
-        0
-    )
+        console.log(
+            `sending asset address ${assetAddress}, signer ${signer}, amount ${etherAmount}`
+        )
+        console.log("getting deposit transaction response...")
+        const depositTxResponse = await lendingPoolContract.deposit(
+            assetAddress,
+            ethers.utils.parseEther(etherAmount),
+            signer,
+            0
+        )
 
-    console.log("getting deposit transaction receipt...")
-    const depositTxReceipt = await depositTxResponse.wait(1)
+        console.log("getting deposit transaction receipt...")
+        const depositTxReceipt = await depositTxResponse.wait(1)
 
-    console.log("deposit txn receipt hash", depositTxReceipt.transactionHash)
+        console.log("deposit txn receipt hash", depositTxReceipt.transactionHash)
 
-    const assetBalanceAfterDeposit = await assetContract.balanceOf(signer)
-    console.log(
-        `Asset balance in signer account post deposit is ${ethers.utils.formatEther(
-            assetBalanceAfterDeposit
-        )}`
-    )
+        const assetBalanceAfterDeposit = await assetContract.balanceOf(signer)
+        console.log(
+            `Asset balance in signer account post deposit is ${ethers.utils.formatEther(
+                assetBalanceAfterDeposit
+            )}`
+        )
+    } catch (e) {
+        console.log("Error detected in Deposit Asset")
+        console.error("e")
+    }
 }
 
 module.exports = { DepositAsset }
